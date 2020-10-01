@@ -9,6 +9,7 @@ use Encode;
 $FLAC = "flac";
 #$LAME = "/cygdrive/c/usr/soft/lame/lame.exe";
 $LAME = "lame";
+$FFMPEG = "/cygdrive/c/usr/soft/ffmpeg/bin/ffmpeg.exe";
 
 $debug = 1;
 $verbose = 1;
@@ -16,11 +17,13 @@ $verbose = 1;
 #&id3write("33.mp3");
 #exit(0);
 
+my $out_format;
+
 for ($i = 0; $i <= $#ARGV; $i++) {
-    my $out_format;
     if ($i == 0) {
         $out_format = $ARGV[$i];
-    }
+		print "Output format: $out_format\n" if debug;
+   	}
     else {
         $cue = $ARGV[$i];
         &flac2($out_format, $cue);
@@ -148,14 +151,13 @@ sub flac2 {
         	&id3write($out, $title, $track_title[$i], $performer, $track_performer[$i]);
         } # mp3
         elsif ($out_format eq 'm4a') {
-            die "Not yet implemented <$out_format>";
             @cmd=(
                 "$FFMPEG",
                 "-i", $wav,
-                "-vn",
-                "-ac", "2",
-                "-ar", "44100",
-                "-ab", "128k",
+                "-vn",					# disables video recording
+                "-ac", "2",				# number of audio channels
+                "-ar", "44100",			# audio sampling frequency (= CD sampling rate)
+                "-ab:a", "128k",		# audio bitrate
                 "-acodec", "libfaac",
                 "-f", "mp4",
                 $out
